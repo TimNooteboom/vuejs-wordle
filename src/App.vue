@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
+import WordleBoard from './components/WordleBoard.vue'
 
 </script>
 
 <template>
-  <HelloWorld msg="You did it!" />
+  <WordleBoard wordOfTheDay="You won!" />
 </template>
 
 <style scoped>
 
-</style>
+</style>./components/WordleBoard.vue
