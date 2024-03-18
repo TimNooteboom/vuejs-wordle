@@ -33,6 +33,7 @@ describe('WordleBoard', () => {
 
     expect(wrapper.text()).toContain(FAILURE_MESSAGE)
   })
+
   test("No end of game message appears if the user has not yet made a guess", async() => {
 
     expect(wrapper.text()).not.toContain(VICTORY_MESSAGE)
@@ -40,8 +41,15 @@ describe('WordleBoard', () => {
   })
 
   test("If a word of the day provided does not have exactly 5 characters, a warning is emitted", async() => {
-    vi.spyOn(console, "warn")
+    console.warn = vi.fn()
     mount(WordleBoard, {props: { wordOfTheDay: "FLY" }})
+
+    expect(console.warn).toHaveBeenCalled()
+  })
+
+  test("If a word of the day is not all in uppercase, a warning is emitted", async() => {
+    console.warn = vi.fn()
+    mount(WordleBoard, {props: { wordOfTheDay: "tests" }})
 
     expect(console.warn).toHaveBeenCalled()
   })
