@@ -43,11 +43,11 @@ describe('WordleBoard', () => {
     })
     test.each(
       [
-        {wordOfTheDay: "FLY", reason: "word of the day must have 5 characters" },
-        {wordOfTheDay: "tests", reason: "word of the day must be all in uppercase" },
-        {wordOfTheDay: "TEST1", reason: "word of the day must be a valid English word" },
+        {wordOfTheDay: "FLY", reason: "word must have 5 characters" },
+        {wordOfTheDay: "tests", reason: "word must be uppercase" },
+        {wordOfTheDay: "TEST1", reason: "word must be a valid word" },
       ]
-      )("Since $reason $wordOfTheDay is invalid, therefore a warning is emitted", async({ wordOfTheDay }) => {
+      )("Since $reason, $wordOfTheDay is invalid. So a warning is emitted", async({ wordOfTheDay }) => {
       mount(WordleBoard, {props: { wordOfTheDay }})
       expect(console.warn).toHaveBeenCalled()
     })
