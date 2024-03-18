@@ -7,19 +7,20 @@ describe('WordleBoard', () => {
   //   const wrapper = mount(WordleBoard, { props: { msg: 'Hello Vitest' } })
   //   expect(wrapper.text()).toContain('Hello Vitest')
   // })
+  const wordOfTheDay = "TESTS"
 
   test("A victory message appears when the user makes a guess that mathes the word of the day", async() => {
-    const wrapper = mount(WordleBoard, { props: { wordOfTheDay: "TESTS" } })
+    const wrapper = mount(WordleBoard, { props: { wordOfTheDay } })
 
     const guessInput = wrapper.find("input[type=text]")
-    await guessInput.setValue("TESTS")
+    await guessInput.setValue(wordOfTheDay)
     await guessInput.trigger("keydown.enter")
 
     expect(wrapper.text()).toContain(VICTORY_MESSAGE)
   })
 
   test("A defeat message appears if the user makes a guess that is incorrect", async() => {
-    const wrapper = mount(WordleBoard, { props: { wordOfTheDay: "TESTS" } })
+    const wrapper = mount(WordleBoard, { props: { wordOfTheDay } })
 
     const guessInput = wrapper.find("input[type=text]")
     await guessInput.setValue("WRONG")
@@ -27,5 +28,10 @@ describe('WordleBoard', () => {
 
     expect(wrapper.text()).toContain(FAILURE_MESSAGE)
   })
-  test.todo("No end of game message appears if the user has not yet made a guess", async() => {})
+  test("No end of game message appears if the user has not yet made a guess", async() => {
+    const wrapper = mount(WordleBoard, { props: { wordOfTheDay } })
+
+    expect(wrapper.text()).not.toContain(VICTORY_MESSAGE)
+    expect(wrapper.text()).not.toContain(FAILURE_MESSAGE)
+  })
 })
