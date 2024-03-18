@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
 import WordleBoard from '../WordleBoard.vue'
-import { FAILURE_MESSAGE, VICTORY_MESSAGE } from '../strings'
+import { FAILURE_MESSAGE, VICTORY_MESSAGE, WORD_SIZE } from '../strings'
 
 describe('WordleBoard', () => {
   // it('renders the msg properly', () => {
@@ -43,7 +43,7 @@ describe('WordleBoard', () => {
     })
     test.each(
       [
-        {wordOfTheDay: "FLY", reason: "word must have 5 characters" },
+        {wordOfTheDay: "FLY", reason: `word must have ${WORD_SIZE} characters` },
         {wordOfTheDay: "tests", reason: "word must be uppercase" },
         {wordOfTheDay: "TEST1", reason: "word must be a valid word" },
       ]
@@ -52,22 +52,37 @@ describe('WordleBoard', () => {
       expect(console.warn).toHaveBeenCalled()
     })
   
-    test("No warning is omitted if the word of the day provided is a 5 letter uppercase word", async() => {
+    test(`No warning is omitted if the word of the day provided is a ${WORD_SIZE} letter uppercase word`, async() => {
       mount(WordleBoard, {props: { wordOfTheDay: "TESTS" }})
       expect(console.warn).not.toHaveBeenCalled()
     })
   })
 
   describe("Player input", () => {
-    test("Player guesses are limited to 5 letters", async() => {
+    test(`Player guesses are limited to ${WORD_SIZE} letters`, async() => {
+      await playerSubmitGuess("TEST1")
+
+      expect(wrapper.text()).not.toContain(VICTORY_MESSAGE)
+      expect(wrapper.text()).not.toContain(FAILURE_MESSAGE)
+    })
+
+    test("Player guesses can only be submitted if they are real words", async() => {
       await playerSubmitGuess(wordOfTheDay + "EXTRA")
 
       expect(wrapper.text()).toContain(VICTORY_MESSAGE)
     })
 
-    test.todo("Player guesses can only be submitted if they are real words", async() => {})
-    test.todo("Player guesses are not case sensitive", async() => {})
-    test.todo("Player guesses can only contain letters", async() => {})
+    test("Player guesses are not case sensitive", async() => {
+      await playerSubmitGuess(wordOfTheDay.toLowerCase())
+
+      expect(wrapper.text()).toContain(VICTORY_MESSAGE)
+    })
+
+    test("Player guesses can only contain letters", async() => {
+      await playerSubmitGuess("H3!RT")
+
+      expect(wrapper.find<HTMLInputElement>('input[type=text]').element.value).toEqual("HRT")
+    })
   })
 
 })
