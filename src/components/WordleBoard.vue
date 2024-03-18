@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { VICTORY_MESSAGE } from './strings';
+import { FAILURE_MESSAGE, VICTORY_MESSAGE } from './strings';
 defineProps<{
   wordOfTheDay: string
 }>()
@@ -8,6 +8,7 @@ defineProps<{
 <template>
   <input type="text" >
   <p>{{ VICTORY_MESSAGE }}</p>
+  <p>{{ FAILURE_MESSAGE }}</p>
   <p>{{ wordOfTheDay }}</p>
 </template>
 

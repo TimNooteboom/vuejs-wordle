@@ -4,6 +4,9 @@ dependencies:
   vue:
     specifier: ^3.4.21
     version: 3.4.21(typescript@5.4.2)
+  wordle:
+    specifier: 'link:'
+    version: 'link:'
 
 devDependencies:
   '@rushstack/eslint-patch':
