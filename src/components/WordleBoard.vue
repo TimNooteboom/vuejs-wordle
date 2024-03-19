@@ -10,26 +10,34 @@ defineProps({
   }
 })
 
-const guessInProgress = ref('')
+const guessInProgress = ref<string|null>(null)
 const guessSubmitted = ref('')
 
-const formattedGuessInProgress = computed({
-  get: () => guessInProgress.value,
-  set: (newValue: string) => guessInProgress.value = newValue
-    .slice(0, WORD_SIZE)
-    .toUpperCase()
-    .replace(/[^A-Z]/g, '')
+const formattedGuessInProgress = computed<string>({
+  get() { 
+    return guessInProgress.value ?? ""
+  },
+  set(newValue: string) {
+    guessInProgress.value = null
+
+    guessInProgress.value = newValue
+      .slice(0, WORD_SIZE)
+      .toUpperCase()
+      .replace(/[^A-Z]+/gi, '')
+      // .replace(/[^A-Z]/g, '')
+  }
 })
 
 function onSubmit() {
-  if(englishWords.includes(guessInProgress.value)) {
-    guessSubmitted.value = guessInProgress.value
+  if(englishWords.includes(formattedGuessInProgress.value)) {
+    guessSubmitted.value = formattedGuessInProgress.value
   }
 }
 
 </script>
 
 <template>
+  {{ guessInProgress }}<br/>
   <input type="text" 
     v-model="formattedGuessInProgress" 
     :maxlength="WORD_SIZE" 

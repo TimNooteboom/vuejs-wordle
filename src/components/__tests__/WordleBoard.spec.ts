@@ -14,7 +14,7 @@ describe('WordleBoard', () => {
     wrapper = mount(WordleBoard, { props: { wordOfTheDay } })
   })
 
-  async function playerSubmitGuess(guess: string) {
+  async function playerSubmitsGuess(guess: string) {
     const guessInput = wrapper.find("input[type=text]")
     await guessInput.setValue(guess)
     await guessInput.trigger("keydown.enter")
@@ -22,12 +22,12 @@ describe('WordleBoard', () => {
 
   describe("End of game messages", () => {  
     test("A victory message appears when the user makes a guess that mathes the word of the day", async() => {
-      await playerSubmitGuess(wordOfTheDay)
+      await playerSubmitsGuess(wordOfTheDay)
       expect(wrapper.text()).toContain(VICTORY_MESSAGE)
     })
   
     test("A defeat message appears if the user makes a guess that is incorrect", async() => {
-      await playerSubmitGuess("WRONG")
+      await playerSubmitsGuess("WRONG")
       expect(wrapper.text()).toContain(FAILURE_MESSAGE)
     })
   
@@ -60,28 +60,34 @@ describe('WordleBoard', () => {
 
   describe("Player input", () => {
     test(`Player guesses are limited to ${WORD_SIZE} letters`, async() => {
-      await playerSubmitGuess("TEST1")
+      await playerSubmitsGuess("TEST1")
 
       expect(wrapper.text()).not.toContain(VICTORY_MESSAGE)
       expect(wrapper.text()).not.toContain(FAILURE_MESSAGE)
     })
 
     test("Player guesses can only be submitted if they are real words", async() => {
-      await playerSubmitGuess(wordOfTheDay + "EXTRA")
+      await playerSubmitsGuess(wordOfTheDay + "EXTRA")
 
       expect(wrapper.text()).toContain(VICTORY_MESSAGE)
     })
 
     test("Player guesses are not case sensitive", async() => {
-      await playerSubmitGuess(wordOfTheDay.toLowerCase())
+      await playerSubmitsGuess(wordOfTheDay.toLowerCase())
 
       expect(wrapper.text()).toContain(VICTORY_MESSAGE)
     })
 
     test("Player guesses can only contain letters", async() => {
-      await playerSubmitGuess("H3!RT")
+      await playerSubmitsGuess("H3!RT")
 
       expect(wrapper.find<HTMLInputElement>('input[type=text]').element.value).toEqual("HRT")
+    })
+
+    test("Non letter characters do not render on the screen while being typed", async () => {
+      await playerSubmitsGuess("333")
+
+      expect(wrapper.find<HTMLInputElement>('input[type=text]').element.value).toEqual("")
     })
   })
 
