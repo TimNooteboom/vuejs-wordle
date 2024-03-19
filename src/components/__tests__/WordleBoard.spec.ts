@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
 import WordleBoard from '../WordleBoard.vue'
-import { FAILURE_MESSAGE, VICTORY_MESSAGE, WORD_SIZE } from '../strings'
+import { FAILURE_MESSAGE, VICTORY_MESSAGE, WORD_SIZE, MAX_GUESSES } from '../strings'
 
 describe('WordleBoard', () => {
   // it('renders the msg properly', () => {
@@ -26,9 +26,26 @@ describe('WordleBoard', () => {
       expect(wrapper.text()).toContain(VICTORY_MESSAGE)
     })
   
-    test("A defeat message appears if the user makes a guess that is incorrect", async() => {
-      await playerSubmitsGuess("WRONG")
-      expect(wrapper.text()).toContain(FAILURE_MESSAGE)
+    describe.each([
+      { numberOfGuesses: 0, shouldSeeDefeatMessage: false },
+      { numberOfGuesses: 1, shouldSeeDefeatMessage: false },
+      { numberOfGuesses: 2, shouldSeeDefeatMessage: false },
+      { numberOfGuesses: 3, shouldSeeDefeatMessage: false },
+      { numberOfGuesses: 4, shouldSeeDefeatMessage: false },
+      { numberOfGuesses: 5, shouldSeeDefeatMessage: false },
+      { numberOfGuesses: MAX_GUESSES, shouldSeeDefeatMessage: true },
+    ])(`A defeat message should appear if the player makes ${MAX_GUESSES} incorrect guesses in a row`, ({ numberOfGuesses, shouldSeeDefeatMessage }) => {
+      test(`therefore for ${numberOfGuesses} guess(es), a defeat message should${shouldSeeDefeatMessage ? '' : 'not'} appear`, async() => {
+        for(let i = 0; i < numberOfGuesses; i++) {
+          await playerSubmitsGuess("WRONG")
+        }
+
+        if(shouldSeeDefeatMessage) {
+          expect(wrapper.text()).toContain(VICTORY_MESSAGE)
+        } else {
+          expect(wrapper.text()).not.toContain(VICTORY_MESSAGE)
+        }
+      })
     })
   
     test("No end of game message appears if the user has not yet made a guess", async() => {
@@ -43,9 +60,9 @@ describe('WordleBoard', () => {
     })
     test.each(
       [
-        {wordOfTheDay: "FLY", reason: `word must have ${WORD_SIZE} characters` },
-        {wordOfTheDay: "tests", reason: "word must be uppercase" },
-        {wordOfTheDay: "TEST1", reason: "word must be a valid word" },
+        { wordOfTheDay: "FLY", reason: `word must have ${WORD_SIZE} characters` },
+        { wordOfTheDay: "tests", reason: "word must be uppercase" },
+        { wordOfTheDay: "TEST1", reason: "word must be a valid word" },
       ]
       )("Since $reason, $wordOfTheDay is invalid. So a warning is emitted", async({ wordOfTheDay }) => {
       mount(WordleBoard, {props: { wordOfTheDay }})
@@ -59,6 +76,18 @@ describe('WordleBoard', () => {
   })
 
   describe("Player input", () => {
+    test("Remains in focus the entire time the game is being played", async() => {
+      document.body.innerHTML = `<div id="app"></div>`
+      wrapper = mount(WordleBoard, { 
+        props: { wordOfTheDay },
+        attachTo: "#app"
+      })
+
+      expect(wrapper.find("input[type=text]").attributes("autofocus")).toBeUndefined()
+      await wrapper.find("input[type=text]").trigger("blur")
+      expect(document.activeElement).toBe(wrapper.find("input[type=text]").element)
+    })
+
     test(`Player guesses are limited to ${WORD_SIZE} letters`, async() => {
       await playerSubmitsGuess("TEST1")
 
