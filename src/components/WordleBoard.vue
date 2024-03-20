@@ -5,19 +5,13 @@
   import GuessInput from './GuessInput.vue'
   import GuessView from './GuessView.vue'
 
-  const props = defineProps({ 
-    wordOfTheDay: {
-      type: String,
-      required: true,
-      validator: (wordGiven: string) => englishWords.includes(wordGiven)
-    }
-  })
+  const wordOfTheDay: string = englishWords[Math.floor(Math.random() * englishWords.length)]
 
   const guessesSubmitted = ref<string[]>([])
 
   const hasGameEnded = computed(() => 
     guessesSubmitted.value.length === MAX_GUESSES || 
-    guessesSubmitted.value.includes(props.wordOfTheDay))
+    guessesSubmitted.value.includes(wordOfTheDay))
 
   const countOfEmptyGuesses = computed(() => {
     const guessesRemaining = MAX_GUESSES - guessesSubmitted.value.length
@@ -28,9 +22,10 @@
 
 <template>
   <main>
+    {{ wordOfTheDay }}
     <ul>
       <li v-for="(guess, index) in guessesSubmitted" :key="`${index}-${guess}`">
-        <GuessView :guess="guess" should-flip />
+        <GuessView :guess="guess" :answer="wordOfTheDay" />
       </li>
       <li>
         <GuessInput :disabled="hasGameEnded" @guess-submitted="guess => guessesSubmitted.push(guess)"/>
