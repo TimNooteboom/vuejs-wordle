@@ -27,6 +27,7 @@
     if(englishWords.includes(formattedGuessInProgress.value)) {
       emit('guessSubmitted', formattedGuessInProgress.value)
     }
+    guessInProgress.value = null
   }
 
 </script>

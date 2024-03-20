@@ -97,6 +97,11 @@ describe('WordleBoard', () => {
       expect(document.activeElement).toBe(wrapper.find("input[type=text]").element)
     })
 
+    test("The input gets cleared after each submission", async() => {
+      await playerSubmitsGuess("TEST")
+      expect(wrapper.find<HTMLInputElement>('input[type=text]').element.value).toEqual("")
+    })
+
     test(`Player guesses are limited to ${WORD_SIZE} letters`, async() => {
       await playerSubmitsGuess("TEST1")
 
