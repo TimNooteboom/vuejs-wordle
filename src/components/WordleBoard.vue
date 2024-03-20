@@ -27,7 +27,7 @@
         {{ guess }}
       </li>
     </ul>
-    {{ guessesSubmitted }}
+
     <GuessInput @guess-submitted = "(guess: any) => guessesSubmitted.push(guess)" />
 
     <p v-if="hasGameEnded" 
