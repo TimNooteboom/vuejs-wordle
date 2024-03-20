@@ -21,13 +21,19 @@
 </script>
 
 <template>
-  <GuessInput @guess-submitted = "(guess: any) => guessesSubmitted.push(guess)" />
+  <main>
+    <ul>
+      <li v-for="(guess, index) in guessesSubmitted" :key="`${index}-${guess}`">
+        {{ guess }}
+      </li>
+    </ul>
+    {{ guessesSubmitted }}
+    <GuessInput @guess-submitted = "(guess: any) => guessesSubmitted.push(guess)" />
 
-  <p v-if="hasGameEnded" 
-    v-text="guessesSubmitted.includes(wordOfTheDay) ? VICTORY_MESSAGE : FAILURE_MESSAGE">
-  </p>
-
-
+    <p v-if="hasGameEnded" 
+      v-text="guessesSubmitted.includes(wordOfTheDay) ? VICTORY_MESSAGE : FAILURE_MESSAGE">
+    </p>
+  </main>
 </template>
 
 <style scoped>

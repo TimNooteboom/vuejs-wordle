@@ -27,13 +27,22 @@ describe('WordleBoard', () => {
     })
   
     describe.each([
-      { numberOfGuesses: 0, shouldSeeDefeatMessage: false },
-      { numberOfGuesses: 1, shouldSeeDefeatMessage: false },
-      { numberOfGuesses: 2, shouldSeeDefeatMessage: false },
-      { numberOfGuesses: 3, shouldSeeDefeatMessage: false },
-      { numberOfGuesses: 4, shouldSeeDefeatMessage: false },
-      { numberOfGuesses: 5, shouldSeeDefeatMessage: false },
-      { numberOfGuesses: MAX_GUESSES, shouldSeeDefeatMessage: true },
+      // { numberOfGuesses: 0, shouldSeeDefeatMessage: false },
+      // { numberOfGuesses: 1, shouldSeeDefeatMessage: false },
+      // { numberOfGuesses: 2, shouldSeeDefeatMessage: false },
+      // { numberOfGuesses: 3, shouldSeeDefeatMessage: false },
+      // { numberOfGuesses: 4, shouldSeeDefeatMessage: false },
+      // { numberOfGuesses: 5, shouldSeeDefeatMessage: false },
+      // { numberOfGuesses: MAX_GUESSES, shouldSeeDefeatMessage: true },
+      
+      // Or we can do the same thing with the following:
+      Array.from(
+        { length: MAX_GUESSES + 1 }, 
+        (_, numberOfGuesses) => ({ 
+          numberOfGuesses,
+          shouldSeeDefeatMessage: numberOfGuesses === MAX_GUESSES 
+        })
+      )
     ])(`A defeat message should appear if the player makes ${MAX_GUESSES} incorrect guesses in a row`, ({ numberOfGuesses, shouldSeeDefeatMessage }) => {
       test(`therefore for ${numberOfGuesses} guess(es), a defeat message should${shouldSeeDefeatMessage ? '' : 'not'} appear`, async() => {
         for(let i = 0; i < numberOfGuesses; i++) {
@@ -119,6 +128,18 @@ describe('WordleBoard', () => {
 
       expect(wrapper.find<HTMLInputElement>('input[type=text]').element.value).toEqual("")
     })
+  })
+
+  test("All previous guessed done by the player are visible in the page", async() => {
+    const guesses = ["TEST", "FAST", "HELLO", "HAPPY", "CODER"]
+
+    for (const guess of guesses) {
+      await playerSubmitsGuess(guess)
+    }
+
+    for(const guess of guesses) {
+      expect(wrapper.text()).toContain(guess)
+    }
   })
 
 })
