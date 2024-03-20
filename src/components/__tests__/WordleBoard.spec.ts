@@ -1,6 +1,7 @@
 import { mount } from '@vue/test-utils'
 import WordleBoard from '../WordleBoard.vue'
 import { FAILURE_MESSAGE, VICTORY_MESSAGE, WORD_SIZE, MAX_GUESSES } from '../strings'
+import GuessView from "../GuessView.vue"
 
 describe('WordleBoard', () => {
   // it('renders the msg properly', () => {
@@ -65,86 +66,148 @@ describe('WordleBoard', () => {
 
   describe("Rules for defining the word of the day", () => {
     beforeEach(() => {
-      console.warn = vi.fn()
+        console.warn = vi.fn()
     })
+
     test.each(
-      [
-        { wordOfTheDay: "FLY", reason: `word must have ${WORD_SIZE} characters` },
-        { wordOfTheDay: "tests", reason: "word must be uppercase" },
-        { wordOfTheDay: "TEST1", reason: "word must be a valid word" },
-      ]
-      )("Since $reason, $wordOfTheDay is invalid. So a warning is emitted", async({ wordOfTheDay }) => {
-      mount(WordleBoard, {props: { wordOfTheDay }})
-      expect(console.warn).toHaveBeenCalled()
-    })
-  
-    test(`No warning is omitted if the word of the day provided is a ${WORD_SIZE} letter uppercase word`, async() => {
-      mount(WordleBoard, {props: { wordOfTheDay: "TESTS" }})
-      expect(console.warn).not.toHaveBeenCalled()
-    })
-  })
+        [
+            {wordOfTheDay: "FLY", reason: "word-of-the-day must have 5 characters"},
+            {wordOfTheDay: "tests", reason: "word-of-the-day must be all in uppercase"},
+            {wordOfTheDay: "QWERT", reason: "word-of-the-day must be a valid English word"}
+        ]
+    )("Since $reason: $wordOfTheDay is invalid, therefore a warning must be emitted", async ({wordOfTheDay}) => {
+        mount(WordleBoard, {props: {wordOfTheDay}})
 
-  describe("Player input", () => {
-    test("Remains in focus the entire time the game is being played", async() => {
-      document.body.innerHTML = `<div id="app"></div>`
-      wrapper = mount(WordleBoard, { 
-        props: { wordOfTheDay },
-        attachTo: "#app"
-      })
-
-      expect(wrapper.find("input[type=text]").attributes("autofocus")).toBeUndefined()
-      await wrapper.find("input[type=text]").trigger("blur")
-      expect(document.activeElement).toBe(wrapper.find("input[type=text]").element)
+        expect(console.warn).toHaveBeenCalled()
     })
 
-    test("The input gets cleared after each submission", async() => {
-      await playerSubmitsGuess("TEST")
-      expect(wrapper.find<HTMLInputElement>('input[type=text]').element.value).toEqual("")
+    test("no warning is emitted if the word of the day provided is a real uppercase English word with 5 characters", async () => {
+        mount(WordleBoard, {props: {wordOfTheDay: "TESTS"}})
+
+        expect(console.warn).not.toHaveBeenCalled()
+    })
+})
+
+describe("Player input", () => {
+    test("remains in focus the entire time", async () => {
+        document.body.innerHTML = `<div id="app"></div>`
+        wrapper = mount(WordleBoard, {
+            props: {wordOfTheDay},
+            attachTo: "#app"
+        })
+
+        expect(wrapper.find("input[type=text]").attributes("autofocus")).not.toBeUndefined()
+
+        await wrapper.find("input[type=text]").trigger("blur")
+        expect(document.activeElement).toBe(wrapper.find("input[type=text]").element)
     })
 
-    test(`Player guesses are limited to ${WORD_SIZE} letters`, async() => {
-      await playerSubmitsGuess("TEST1")
+    test("the input gets cleared after each submission", async () => {
+        await playerSubmitsGuess("WRONG")
 
-      expect(wrapper.text()).not.toContain(VICTORY_MESSAGE)
-      expect(wrapper.text()).not.toContain(FAILURE_MESSAGE)
+        expect(wrapper.find<HTMLInputElement>("input[type=text]").element.value).toEqual("")
     })
 
-    test("Player guesses can only be submitted if they are real words", async() => {
-      await playerSubmitsGuess(wordOfTheDay + "EXTRA")
+    test(`player guesses are limited to ${WORD_SIZE} letters`, async () => {
+        await playerSubmitsGuess(wordOfTheDay + "EXTRA")
 
-      expect(wrapper.text()).toContain(VICTORY_MESSAGE)
+        expect(wrapper.text()).toContain(VICTORY_MESSAGE)
     })
 
-    test("Player guesses are not case sensitive", async() => {
-      await playerSubmitsGuess(wordOfTheDay.toLowerCase())
+    test("player guesses can only be submitted if they are real words", async () => {
+        await playerSubmitsGuess("QWERT")
 
-      expect(wrapper.text()).toContain(VICTORY_MESSAGE)
+        expect(wrapper.text()).not.toContain(VICTORY_MESSAGE)
+        expect(wrapper.text()).not.toContain(FAILURE_MESSAGE)
     })
 
-    test("Player guesses can only contain letters", async() => {
-      await playerSubmitsGuess("H3!RT")
+    test("player guesses are not case-sensitive", async () => {
+        await playerSubmitsGuess(wordOfTheDay.toLowerCase())
 
-      expect(wrapper.find<HTMLInputElement>('input[type=text]').element.value).toEqual("HRT")
+        expect(wrapper.text()).toContain(VICTORY_MESSAGE)
     })
 
-    test("Non letter characters do not render on the screen while being typed", async () => {
-      await playerSubmitsGuess("123")
-      await playerSubmitsGuess("456")
+    test("player guesses can only contain letters", async () => {
+        await playerSubmitsGuess("H3!RTTT")
 
-      expect(wrapper.find<HTMLInputElement>('input[type=text]').element.value).toEqual("")
+        expect(wrapper.find<HTMLInputElement>("input[type=text]").element.value).toEqual("HRTTT")
     })
-  })
 
-  test("All previous guessed done by the player are visible in the page", async() => {
-    const guesses = ["TEST", "FAST", "HELLO", "HAPPY", "CODER"]
+    test("non-letter characters do not render on the screen while being typed", async () => {
+        await playerSubmitsGuess("123")
+        await playerSubmitsGuess("456")
+
+        expect(wrapper.find<HTMLInputElement>("input[type=text]").element.value).toEqual("")
+    })
+
+    test("the player loses control after the max amount of guesses have been sent", async () => {
+        const guesses = [
+            "WRONG",
+            "GUESS",
+            "HELLO",
+            "WORLD",
+            "HAPPY",
+            "CODER"
+        ]
+
+        for (const guess of guesses) {
+            await playerSubmitsGuess(guess)
+        }
+
+        expect(wrapper.find("input[type=text]").attributes("disabled")).not.toBeUndefined()
+    })
+
+    test("the player loses control after the correct guess has been given", async () => {
+        await playerSubmitsGuess(wordOfTheDay)
+
+        expect(wrapper.find("input[type=text]").attributes("disabled")).not.toBeUndefined()
+    })
+})
+
+test("all previous guesses done by the player are visible in the page", async () => {
+    const guesses = [
+        "WRONG",
+        "GUESS",
+        "HELLO",
+        "WORLD",
+        "HAPPY",
+        "CODER"
+    ]
 
     for (const guess of guesses) {
-      await playerSubmitsGuess(guess)
+        await playerSubmitsGuess(guess)
     }
 
-    for(const guess of guesses) {
-      expect(wrapper.text()).toContain(guess)
+    for (const guess of guesses) {
+        expect(wrapper.text()).toContain(guess)
     }
-  })
+})
 
+describe(`there should always be exactly ${MAX_GUESSES} guess-views in the board`, async () => {
+    test(`${MAX_GUESSES} guess-views are present at the start of the game`, async () => {
+        expect(wrapper.findAllComponents(GuessView)).toHaveLength(MAX_GUESSES)
+    })
+
+    test(`${MAX_GUESSES} guess-views are present when the player wins the game`, async () => {
+        await playerSubmitsGuess(wordOfTheDay)
+
+        expect(wrapper.findAllComponents(GuessView)).toHaveLength(MAX_GUESSES)
+    })
+
+    test(`${MAX_GUESSES} guess-views are present as the player loses the game`, async () => {
+        const guesses = [
+            "WRONG",
+            "GUESS",
+            "HELLO",
+            "WORLD",
+            "HAPPY",
+            "CODER"
+        ]
+
+        for (const guess of guesses) {
+            await playerSubmitsGuess(guess)
+            expect(wrapper.findAllComponents(GuessView)).toHaveLength(MAX_GUESSES)
+        }
+    })
+})
 })

@@ -1,8 +1,10 @@
 <script setup lang="ts">
-  import { WORD_SIZE } from './strings'
+  import { WORD_SIZE, ARIA_LABEL_PROMPT } from './strings'
   import englishWords from './englishWordsWith5Letters.json'
   import GuessView from './GuessView.vue';
   import { computed, ref } from 'vue'
+
+  withDefaults(defineProps<{ disabled?: boolean }>(), {disabled: false})
 
   const guessInProgress = ref<string|null>(null)
   const emit = defineEmits<{
@@ -34,16 +36,17 @@
 </script>
 
 <template>
-    <GuessView :guess="formattedGuessInProgress" />
+  <GuessView v-if="!disabled" :guess="formattedGuessInProgress"/>
 
-    <input v-model="formattedGuessInProgress" 
-      :maxlength="WORD_SIZE" 
-      autofocus
-      @blur="({target}) => (target as HTMLInputElement).focus()"
-      type="text"
-      @keydown.enter="onSubmit"
-    >
-  
+  <input v-model="formattedGuessInProgress"
+    :maxlength="WORD_SIZE"
+    :disabled="disabled"
+    :aria-label="ARIA_LABEL_PROMPT"
+    autofocus
+    @blur="({target}) => (target as HTMLInputElement).focus()"
+    type="text"
+    @keydown.enter="onSubmit"
+  >
 </template>
 
 <style scoped>

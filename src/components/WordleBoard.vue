@@ -3,6 +3,7 @@
   import englishWords from './englishWordsWith5Letters.json'
   import { ref, computed } from 'vue'
   import GuessInput from './GuessInput.vue'
+  import GuessView from './GuessView.vue'
 
   const props = defineProps({ 
     wordOfTheDay: {
@@ -18,21 +19,30 @@
     guessesSubmitted.value.length === MAX_GUESSES || 
     guessesSubmitted.value.includes(props.wordOfTheDay))
 
+  const countOfEmptyGuesses = computed(() => {
+    const guessesRemaining = MAX_GUESSES - guessesSubmitted.value.length
+
+    return hasGameEnded.value ? guessesRemaining : guessesRemaining - 1
+  })
 </script>
 
 <template>
   <main>
     <ul>
       <li v-for="(guess, index) in guessesSubmitted" :key="`${index}-${guess}`">
-        {{ guess }}
+        <GuessView :guess="guess"/>
+      </li>
+      <li>
+        <GuessInput :disabled="hasGameEnded" @guess-submitted="guess => guessesSubmitted.push(guess)"/>
+      </li>
+      <li v-for="i in countOfEmptyGuesses" :key="`remaining-guess-${i}`">
+        <GuessView guess=""/>
       </li>
     </ul>
 
-    <GuessInput @guess-submitted = "(guess: any) => guessesSubmitted.push(guess)" />
-
-    <p v-if="hasGameEnded" 
-      v-text="guessesSubmitted.includes(wordOfTheDay) ? VICTORY_MESSAGE : FAILURE_MESSAGE">
-    </p>
+    <p v-if="hasGameEnded"
+      class="end-of-game-message"
+      v-text="guessesSubmitted.includes(wordOfTheDay) ? VICTORY_MESSAGE : FAILURE_MESSAGE"/>
   </main>
 </template>
 
@@ -49,6 +59,16 @@
     animation: end-of-game-message-animation 700ms forwards;
     white-space: nowrap;
     text-align: center;
+  }
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  li {
+    margin-bottom: 0.25rem;
   }
 
   @keyframes end-of-game-message-animation {

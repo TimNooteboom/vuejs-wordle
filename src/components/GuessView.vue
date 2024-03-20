@@ -18,6 +18,11 @@
 </template>
 
 <style scoped>
+  ul {
+    margin: 0;
+    padding: 0;
+  }
+
   .word {
     display: flex;
     gap: 0.25rem;
