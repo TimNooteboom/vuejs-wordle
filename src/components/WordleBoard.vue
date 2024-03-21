@@ -6,8 +6,13 @@
   import GuessView from './GuessView.vue'
 
   const wordOfTheDay: string = englishWords[Math.floor(Math.random() * englishWords.length)]
+  console.log(wordOfTheDay)
 
   const guessesSubmitted = ref<string[]>([])
+
+  const replayGame = () => {
+    window.location.reload()
+  }
 
   const hasGameEnded = computed(() => 
     guessesSubmitted.value.length === MAX_GUESSES || 
@@ -22,7 +27,6 @@
 
 <template>
   <main>
-    {{ wordOfTheDay }}
     <ul>
       <li v-for="(guess, index) in guessesSubmitted" :key="`${index}-${guess}`">
         <GuessView :guess="guess" :answer="wordOfTheDay" />
@@ -35,9 +39,10 @@
       </li>
     </ul>
 
-    <p v-if="hasGameEnded"
-      class="end-of-game-message"
-      v-text="guessesSubmitted.includes(wordOfTheDay) ? VICTORY_MESSAGE : FAILURE_MESSAGE"/>
+    <div v-if="hasGameEnded" class="end-of-game-message">
+      <p>{{ guessesSubmitted.includes(wordOfTheDay) ? VICTORY_MESSAGE : FAILURE_MESSAGE }}</p>
+      ({{wordOfTheDay}}) <a href="#" @click.prevent="replayGame">Play again?</a>
+    </div>
   </main>
 </template>
 
@@ -54,6 +59,15 @@
     animation: end-of-game-message-animation 700ms forwards;
     white-space: nowrap;
     text-align: center;
+
+    p {
+      margin-bottom: 0;
+    }
+
+    a{
+      font-size: 1.5rem;
+      text-decoration: none;
+    }
   }
 
   ul {
