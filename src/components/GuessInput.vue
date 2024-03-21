@@ -2,12 +2,14 @@
   import { WORD_SIZE, ARIA_LABEL_PROMPT } from './strings'
   import englishWords from './englishWordsWith5Letters.json'
   import GuessView from './GuessView.vue';
-  import { computed, ref } from 'vue'
+  import { computed, inject, ref } from 'vue'
 
   withDefaults(defineProps<{ disabled?: boolean }>(), {disabled: false})
 
   const guessInProgress = ref<string | null>(null)
   const hasFailedValidation = ref<boolean>(false)
+
+  const guessesSubmitted = inject('guessesSubmitted', ref<string[]>([]))
 
   const emit = defineEmits<{
     "guessSubmitted": [guess: string]
@@ -23,13 +25,12 @@
       guessInProgress.value = newValue
         .slice(0, WORD_SIZE)
         .toUpperCase()
-        .replace(/[^A-Z]+/gi, '')
-        // .replace(/[^A-Z]/g, '')
+        .replace(/[^A-Z]/g, '')
     }
   })
 
   function onSubmit() {
-    if (!englishWords.includes(formattedGuessInProgress.value)) {
+    if (!englishWords.includes(formattedGuessInProgress.value) || guessesSubmitted.value.includes(formattedGuessInProgress.value)) {
       hasFailedValidation.value = true
       setTimeout(() => hasFailedValidation.value = false, 500)
 

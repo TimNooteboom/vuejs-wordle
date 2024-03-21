@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import { FAILURE_MESSAGE, MAX_GUESSES, VICTORY_MESSAGE } from './strings'
   import englishWords from './englishWordsWith5Letters.json'
-  import { ref, computed } from 'vue'
+  import { ref, computed, provide } from 'vue'
   import GuessInput from './GuessInput.vue'
   import GuessView from './GuessView.vue'
 
@@ -23,16 +23,19 @@
 
     return hasGameEnded.value ? guessesRemaining : guessesRemaining - 1
   })
+
+  provide('guessesSubmitted', guessesSubmitted)
 </script>
 
 <template>
   <main>
+  <h1>Wordle</h1>
     <ul>
       <li v-for="(guess, index) in guessesSubmitted" :key="`${index}-${guess}`">
         <GuessView :guess="guess" :answer="wordOfTheDay" />
       </li>
       <li>
-        <GuessInput :disabled="hasGameEnded" @guess-submitted="guess => guessesSubmitted.push(guess)"/>
+        <GuessInput :disabled="hasGameEnded" @guess-submitted="guess => guessesSubmitted.push(guess)" />
       </li>
       <li v-for="i in countOfEmptyGuesses" :key="`remaining-guess-${i}`">
         <GuessView guess=""/>
@@ -52,34 +55,41 @@
     flex-direction: column;
     align-items: center;
     margin-top: 3rem;
-  }
 
-  .end-of-game-message {
-    font-size: 3rem;
-    animation: end-of-game-message-animation 700ms forwards;
-    white-space: nowrap;
-    text-align: center;
-
-    p {
-      margin-bottom: 0;
+    h1 {
+      font-family: cursive;
+      font-size: 3rem;
+      letter-spacing: 3px;
+      margin-bottom: 1rem;
     }
 
-    a{
-      font-size: 1.5rem;
-      text-decoration: none;
+    .end-of-game-message {
+      font-size: 3rem;
+      animation: end-of-game-message-animation 700ms forwards;
+      white-space: nowrap;
+      text-align: center;
+
+      p {
+        margin-bottom: 0;
+      }
+
+      a{
+        font-size: 1.5rem;
+        text-decoration: none;
+      }
+    }
+
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    
+      li {
+        margin-bottom: 0.25rem;
+      }
     }
   }
-
-  ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-
-  li {
-    margin-bottom: 0.25rem;
-  }
-
+  
   @keyframes end-of-game-message-animation {
     0% {
       opacity: 0;
