@@ -5,6 +5,7 @@
   import GuessInput from './GuessInput.vue'
   import GuessView from './GuessView.vue'
   import JSConfetti from 'js-confetti'
+  
   const jsConfetti = new JSConfetti()
 
   const wordOfTheDay: string = englishWords[Math.floor(Math.random() * englishWords.length)]
@@ -23,6 +24,10 @@
     }
   }
 
+  const clickLetter = (letter: string) => {
+    window.console.log(letter)
+  }
+
   const hasGameWon = computed(() => guessesSubmitted.value.includes(wordOfTheDay))
 
   const hasGameEnded = computed(() => 
@@ -34,6 +39,12 @@
 
     return hasGameEnded.value ? guessesRemaining : guessesRemaining - 1
   })
+
+  const keyboardLetters = ref([
+    ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
+    ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
+    ['Z', 'X', 'C', 'V', 'B', 'N', 'M']
+  ])
 
   provide('guessesSubmitted', guessesSubmitted)
 </script>
@@ -56,6 +67,12 @@
     <div v-if="hasGameEnded" class="end-of-game-message">
       <p>{{ hasGameWon ? VICTORY_MESSAGE : FAILURE_MESSAGE }}</p>
       <span v-if="!hasGameWon">({{wordOfTheDay}})</span> <a href="#" @click.prevent="replayGame">Play again?</a>
+    </div>
+
+    <div class="letters">
+      <div class="row" v-for="(row, index) in keyboardLetters" :key="`row-${index}`">
+        <button v-for="letter in row" :key="letter" @click="clickLetter(letter)">{{ letter }}</button>
+      </div>
     </div>
   </main>
 </template>
@@ -97,6 +114,29 @@
     
       li {
         margin-bottom: 0.25rem;
+      }
+    }
+
+    .letters {
+      margin-top: 100px;
+
+      .row {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 10px;
+
+        button {
+          font-size: 1.5rem;
+          padding: 0.5rem 1rem;
+          border: 1px solid black;
+          border-radius: 5px;
+          background-color: white;
+          cursor: pointer;
+          &:hover {
+            background-color: lightgray;
+          }
+        }
       }
     }
   }
