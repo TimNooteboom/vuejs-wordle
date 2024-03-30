@@ -4,6 +4,8 @@
   import { ref, computed, provide } from 'vue'
   import GuessInput from './GuessInput.vue'
   import GuessView from './GuessView.vue'
+  import JSConfetti from 'js-confetti'
+  const jsConfetti = new JSConfetti()
 
   const wordOfTheDay: string = englishWords[Math.floor(Math.random() * englishWords.length)]
   console.log(wordOfTheDay)
@@ -13,6 +15,15 @@
   const replayGame = () => {
     window.location.reload()
   }
+
+  const addGuess = (guess: string) => {
+    guessesSubmitted.value.push(guess)
+    if (hasGameWon.value) {
+      jsConfetti.addConfetti()
+    }
+  }
+
+  const hasGameWon = computed(() => guessesSubmitted.value.includes(wordOfTheDay))
 
   const hasGameEnded = computed(() => 
     guessesSubmitted.value.length === MAX_GUESSES || 
@@ -35,7 +46,7 @@
         <GuessView :guess="guess" :answer="wordOfTheDay" />
       </li>
       <li>
-        <GuessInput :disabled="hasGameEnded" @guess-submitted="guess => guessesSubmitted.push(guess)" />
+        <GuessInput :disabled="hasGameEnded" @guess-submitted="guess => addGuess(guess)" />
       </li>
       <li v-for="i in countOfEmptyGuesses" :key="`remaining-guess-${i}`">
         <GuessView guess=""/>
@@ -43,8 +54,8 @@
     </ul>
 
     <div v-if="hasGameEnded" class="end-of-game-message">
-      <p>{{ guessesSubmitted.includes(wordOfTheDay) ? VICTORY_MESSAGE : FAILURE_MESSAGE }}</p>
-      ({{wordOfTheDay}}) <a href="#" @click.prevent="replayGame">Play again?</a>
+      <p>{{ hasGameWon ? VICTORY_MESSAGE : FAILURE_MESSAGE }}</p>
+      <span v-if="!hasGameWon">({{wordOfTheDay}})</span> <a href="#" @click.prevent="replayGame">Play again?</a>
     </div>
   </main>
 </template>

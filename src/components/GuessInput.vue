@@ -33,7 +33,6 @@
     if (!englishWords.includes(formattedGuessInProgress.value) || guessesSubmitted.value.includes(formattedGuessInProgress.value)) {
       hasFailedValidation.value = true
       setTimeout(() => hasFailedValidation.value = false, 500)
-
       return
     }
 
