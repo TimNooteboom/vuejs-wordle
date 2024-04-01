@@ -95,7 +95,7 @@
 
   @keyframes flip-card {
     0% {
-      transform: rotateY(0);
+      transform: rotateX(0);
       background-color: var(--front-color);
     }
 
@@ -103,12 +103,12 @@
       background-color: var(--front-color);
     }
     50% {
-      transform: rotateY(-90deg);
+      transform: rotateX(-90deg);
       background-color: var(--back-color);
     }
 
     100% {
-      transform: rotateY(0);
+      transform: rotateX(0);
       background-color: var(--back-color);
     }
   }
