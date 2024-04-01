@@ -2,17 +2,27 @@
   import { WORD_SIZE, ARIA_LABEL_PROMPT } from './strings'
   import englishWords from './englishWordsWith5Letters.json'
   import GuessView from './GuessView.vue';
-  import { computed, inject, ref } from 'vue'
+  import { computed, inject, ref, watch } from 'vue'
 
-  withDefaults(defineProps<{ disabled?: boolean }>(), {disabled: false})
+  const props = defineProps({
+    disabled: {
+      type: Boolean,
+      default: false
+    },
+    letter: {
+      type: String,
+      default: ""
+    }
+  })
 
-  const guessInProgress = ref<string | null>(null)
+  const guessInProgress = ref<string>("")
   const hasFailedValidation = ref<boolean>(false)
 
   const guessesSubmitted = inject('guessesSubmitted', ref<string[]>([]))
 
   const emit = defineEmits<{
-    "guessSubmitted": [guess: string]
+    "guessSubmitted": [guess: string],
+    "screenButtonClicked": []
   }>()
 
   const formattedGuessInProgress = computed<string>({
@@ -20,7 +30,7 @@
       return guessInProgress.value ?? ""
     },
     set(newValue: string) {
-      guessInProgress.value = null
+      guessInProgress.value = ""
 
       guessInProgress.value = newValue
         .slice(0, WORD_SIZE)
@@ -37,17 +47,31 @@
     }
 
     emit('guessSubmitted', formattedGuessInProgress.value)
-    guessInProgress.value = null
+    guessInProgress.value = ""
   }
+
+  watch(() => props.letter, (newLetter) => {
+    if(newLetter === 'DEL') {
+      guessInProgress.value = guessInProgress.value.slice(0, -1)
+    }
+    else if (newLetter === 'ENTER') {
+      onSubmit()
+    }
+    else if (newLetter && guessInProgress?.value.length < WORD_SIZE) {
+      guessInProgress.value += newLetter
+    }
+    // clear the button pushed so it can be typed again and the watch will pick it up
+    emit('screenButtonClicked') 
+  }, { deep: true })
 
 </script>
 
 <template>
-  <GuessView v-if="!disabled" :class="{shake: hasFailedValidation}" :guess="formattedGuessInProgress"/>
+  <GuessView v-if="!props.disabled" :class="{shake: hasFailedValidation}" :guess="formattedGuessInProgress"/>
 
   <input v-model="formattedGuessInProgress"
     :maxlength="WORD_SIZE"
-    :disabled="disabled"
+    :disabled="props.disabled"
     :aria-label="ARIA_LABEL_PROMPT"
     autofocus
     @blur="({target}) => (target as HTMLInputElement).focus()"

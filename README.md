@@ -9,5 +9,5 @@ pnpm run dev
 
 TODO: 
 
-show the letters that have already been selected on a keyboard with a backspace and enter key. Allow users to type with it too.
+show the letters that have already been selected on the keyboard
 show a message that the word has already been used or is not valid

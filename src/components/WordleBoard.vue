@@ -1,12 +1,14 @@
 <script setup lang="ts">
   import { FAILURE_MESSAGE, MAX_GUESSES, VICTORY_MESSAGE } from './strings'
   import englishWords from './englishWordsWith5Letters.json'
-  import { ref, computed, provide } from 'vue'
+  import { ref, type Ref, computed, provide } from 'vue'
   import GuessInput from './GuessInput.vue'
   import GuessView from './GuessView.vue'
   import JSConfetti from 'js-confetti'
   
   const jsConfetti = new JSConfetti()
+
+  let screenLetter: Ref<string> = ref('')
 
   const wordOfTheDay: string = englishWords[Math.floor(Math.random() * englishWords.length)]
   console.log(wordOfTheDay)
@@ -25,14 +27,13 @@
   }
 
   const clickLetter = (letter: string) => {
-    window.console.log(letter)
+    screenLetter.value = letter
   }
 
   const hasGameWon = computed(() => guessesSubmitted.value.includes(wordOfTheDay))
 
   const hasGameEnded = computed(() => 
-    guessesSubmitted.value.length === MAX_GUESSES || 
-    guessesSubmitted.value.includes(wordOfTheDay))
+    guessesSubmitted.value.length === MAX_GUESSES || hasGameWon.value)
 
   const countOfEmptyGuesses = computed(() => {
     const guessesRemaining = MAX_GUESSES - guessesSubmitted.value.length
@@ -43,7 +44,7 @@
   const keyboardLetters = ref([
     ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
     ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
-    ['Z', 'X', 'C', 'V', 'B', 'N', 'M']
+    ['DEL', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', 'ENTER']
   ])
 
   provide('guessesSubmitted', guessesSubmitted)
@@ -57,7 +58,7 @@
         <GuessView :guess="guess" :answer="wordOfTheDay" />
       </li>
       <li>
-        <GuessInput :disabled="hasGameEnded" @guess-submitted="guess => addGuess(guess)" />
+        <GuessInput :disabled="hasGameEnded" @guess-submitted="guess => addGuess(guess)" :letter="screenLetter" @screen-button-clicked="screenLetter = ''" />
       </li>
       <li v-for="i in countOfEmptyGuesses" :key="`remaining-guess-${i}`">
         <GuessView guess=""/>
@@ -65,10 +66,12 @@
     </ul>
 
     <div v-if="hasGameEnded" class="end-of-game-message">
-      <p>{{ hasGameWon ? VICTORY_MESSAGE : FAILURE_MESSAGE }}</p>
-      <span v-if="!hasGameWon">({{wordOfTheDay}})</span> <a href="#" @click.prevent="replayGame">Play again?</a>
+      <p v-if="hasGameWon">{{ VICTORY_MESSAGE }}</p>
+      <p v-else>{{ FAILURE_MESSAGE }} <span>({{ wordOfTheDay }})</span></p>
+      <a href="#" @click.prevent="replayGame">Play again?</a>
     </div>
 
+    <!-- On screen keyboard -->
     <div class="letters">
       <div class="row" v-for="(row, index) in keyboardLetters" :key="`row-${index}`">
         <button v-for="letter in row" :key="letter" @click="clickLetter(letter)">{{ letter }}</button>
