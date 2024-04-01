@@ -41,6 +41,10 @@
     return hasGameEnded.value ? guessesRemaining : guessesRemaining - 1
   })
 
+  const selectedLetters = ref<string[]>(['A', 'E', 'I', 'O', 'U'])
+
+  const isSelected = (letter: string) => selectedLetters.value.includes(letter)
+
   const keyboardLetters = ref([
     ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
     ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
@@ -74,7 +78,7 @@
     <!-- On screen keyboard -->
     <div class="letters">
       <div class="row" v-for="(row, index) in keyboardLetters" :key="`row-${index}`">
-        <button v-for="letter in row" :key="letter" @click="clickLetter(letter)">{{ letter }}</button>
+        <button v-for="letter in row" :key="letter" :class="{ selected: isSelected(letter) }" @click="clickLetter(letter)">{{ letter }}</button>
       </div>
     </div>
   </main>
@@ -136,7 +140,7 @@
           border-radius: 5px;
           background-color: white;
           cursor: pointer;
-          &:hover {
+          &:hover, &.selected {
             background-color: lightgray;
           }
         }
