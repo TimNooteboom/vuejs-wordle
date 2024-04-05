@@ -9,5 +9,4 @@ pnpm run dev
 
 TODO: 
 
-show the letters that have already been selected on the keyboard
 show a message that the word has already been used or is not valid

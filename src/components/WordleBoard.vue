@@ -21,6 +21,14 @@
 
   const addGuess = (guess: string) => {
     guessesSubmitted.value.push(guess)
+    // filter out the duplicate letters from the guess
+    let uniqueGuessArray = [...new Set(guess.split(''))] // 'happy' only gives us ['h', 'a', 'p', 'y']
+    // find the unique letters that are not already in the selectedLetters array
+    const uniqueLetters = uniqueGuessArray.filter(letter => !selectedLetters.value.includes(letter))
+    selectedLetters.value = selectedLetters.value.concat(uniqueLetters)
+    // we can also use a set and do this in one line but I like the readability of the code above
+    // selectedLetters.value = [...new Set(selectedLetters.value.concat(guess.split('')))]
+    
     if (hasGameWon.value) {
       jsConfetti.addConfetti()
     }
@@ -41,7 +49,7 @@
     return hasGameEnded.value ? guessesRemaining : guessesRemaining - 1
   })
 
-  const selectedLetters = ref<string[]>(['A', 'E', 'I', 'O', 'U'])
+  const selectedLetters = ref<string[]>([])
 
   const isSelected = (letter: string) => selectedLetters.value.includes(letter)
 
