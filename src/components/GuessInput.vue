@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { WORD_SIZE, ARIA_LABEL_PROMPT } from './strings'
+  import { WORD_SIZE, ARIA_LABEL_PROMPT, NOT_VALID, DUPLICATE_GUESS } from './strings'
   import englishWords from './englishWordsWith5Letters.json'
   import GuessView from './GuessView.vue';
   import { computed, inject, ref, watch } from 'vue'
@@ -22,7 +22,8 @@
 
   const emit = defineEmits<{
     "guessSubmitted": [guess: string],
-    "screenButtonClicked": []
+    "screenButtonClicked": [],
+    "failedValidation": [val: string]
   }>()
 
   const formattedGuessInProgress = computed<string>({
@@ -40,7 +41,11 @@
   })
 
   function onSubmit() {
-    if (!englishWords.includes(formattedGuessInProgress.value) || guessesSubmitted.value.includes(formattedGuessInProgress.value)) {
+    const notAWord = !englishWords.includes(formattedGuessInProgress.value)
+    const alreadyGuessed = guessesSubmitted.value.includes(formattedGuessInProgress.value)
+    if (notAWord || alreadyGuessed) {
+      notAWord ? emit('failedValidation', NOT_VALID) : emit('failedValidation', DUPLICATE_GUESS)
+
       hasFailedValidation.value = true
       setTimeout(() => hasFailedValidation.value = false, 500)
       return

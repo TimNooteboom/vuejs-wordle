@@ -6,7 +6,3 @@ cd wordle
 pnpm install
 pnpm format
 pnpm run dev
-
-TODO: 
-
-show a message that the word has already been used or is not valid

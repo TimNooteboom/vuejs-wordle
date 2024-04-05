@@ -9,6 +9,7 @@
   const jsConfetti = new JSConfetti()
 
   let screenLetter: Ref<string> = ref('')
+  let errorMsg: Ref<string> = ref('')
 
   const wordOfTheDay: string = englishWords[Math.floor(Math.random() * englishWords.length)]
   console.log(wordOfTheDay)
@@ -32,6 +33,11 @@
     if (hasGameWon.value) {
       jsConfetti.addConfetti()
     }
+  }
+
+  const displayError = (error: string) => {
+    errorMsg.value = error
+    setTimeout(() => errorMsg.value = '', 2000)
   }
 
   const clickLetter = (letter: string) => {
@@ -70,12 +76,16 @@
         <GuessView :guess="guess" :answer="wordOfTheDay" />
       </li>
       <li>
-        <GuessInput :disabled="hasGameEnded" @guess-submitted="guess => addGuess(guess)" :letter="screenLetter" @screen-button-clicked="screenLetter = ''" />
+        <GuessInput :disabled="hasGameEnded" @guess-submitted="guess => addGuess(guess)" @failed-validation="error => displayError(error)" :letter="screenLetter" @screen-button-clicked="screenLetter = ''" />
       </li>
       <li v-for="i in countOfEmptyGuesses" :key="`remaining-guess-${i}`">
         <GuessView guess=""/>
       </li>
     </ul>
+
+    <div class="errors">
+      <p v-if="errorMsg">{{ errorMsg }}</p>
+    </div>
 
     <div v-if="hasGameEnded" class="end-of-game-message">
       <p v-if="hasGameWon">{{ VICTORY_MESSAGE }}</p>
@@ -105,16 +115,27 @@
       letter-spacing: 3px;
       margin-bottom: 1rem;
     }
+ 
+    p {
+      margin: 0;
+    }
+
+    .errors {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: red;
+      font-weight: bold;
+      font-size: 1.5rem;
+      height: 50px;
+      width: 100%;
+    }
 
     .end-of-game-message {
-      font-size: 3rem;
-      animation: end-of-game-message-animation 700ms forwards;
+      font-size: 2.5rem;
+      animation: fade-in-animation 4000ms;
       white-space: nowrap;
       text-align: center;
-
-      p {
-        margin-bottom: 0;
-      }
 
       a{
         font-size: 1.5rem;
@@ -133,7 +154,7 @@
     }
 
     .letters {
-      margin-top: 100px;
+      margin-top: 40px;
 
       .row {
         display: flex;
@@ -156,14 +177,12 @@
     }
   }
   
-  @keyframes end-of-game-message-animation {
+  @keyframes fade-in-animation {
     0% {
       opacity: 0;
-      transform: rotateZ(0);
     }
     100% {
       opacity: 1;
-      transform: translateY(2rem);
     }
   }
 </style>
