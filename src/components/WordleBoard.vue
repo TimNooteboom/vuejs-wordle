@@ -107,13 +107,12 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 3rem;
 
     h1 {
       font-family: cursive;
       font-size: 3rem;
       letter-spacing: 3px;
-      margin-bottom: 1rem;
+      margin: 0 0 1rem;
     }
  
     p {
@@ -154,7 +153,7 @@
     }
 
     .letters {
-      margin-top: 40px;
+      margin-top: 30px;
 
       .row {
         display: flex;
